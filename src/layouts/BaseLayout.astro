@@ -1,0 +1,66 @@
+---
+import { navItems, allFormulaRecords } from '../data/formulas.js';
+
+const {
+  title = 'Mathematical Handbook',
+  description = 'A trimmed formula handbook for math, physics, and chemistry.',
+  currentPath = Astro.url.pathname,
+  useP5 = false
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script is:inline>
+      window.MathJax = {
+        tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    {useP5 && <script defer src="https://cdn.jsdelivr.net/npm/p5@1.11.2/lib/p5.min.js"></script>}
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="brand" href="/" aria-label="Mathematical Handbook home">
+          <span class="brand-mark">∑</span>
+          <span>Mathematical Handbook</span>
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          {navItems.map((item) => (
+            <a href={item.href} class:list={['nav-link', currentPath === item.href && 'active']}>{item.label}</a>
+          ))}
+        </nav>
+      </header>
+
+      <section class="search-panel" aria-label="Formula search">
+        <label for="formula-search">Search formulas</label>
+        <div class="search-row">
+          <input id="formula-search" class="search-input" type="search" placeholder="Try derivative, Bayes, Newton, pH..." autocomplete="off" />
+          <span id="search-count" class="search-count">All formulas</span>
+        </div>
+        <div id="search-results" class="search-results" aria-live="polite"></div>
+      </section>
+
+      <main>
+        <slot />
+      </main>
+
+      <footer class="site-footer">
+        <p>&copy; 2026 Mathematical Handbook. A concise study reference inspired by Schaum's Mathematical Handbook.</p>
+      </footer>
+    </div>
+
+    <script type="application/json" id="formula-index" set:html={JSON.stringify(allFormulaRecords)} />
+    <script src="/scripts/search.js" defer></script>
+  </body>
+</html>

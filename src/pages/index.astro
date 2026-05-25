@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { sections, allFormulaRecords } from '../data/formulas.js';
+---
+<BaseLayout title="Mathematical Handbook | Home" currentPath="/">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Trimmed Study Reference</p>
+      <h1>A compact mathematical handbook for fast formula lookup.</h1>
+      <p>
+        Browse essential math, physics, and chemistry formulas with rendered LaTeX, concise examples, visual diagrams, and instant search.
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="/algebra-trigonometry/">Start Browsing</a>
+        <a class="btn ghost" href="/calculus/">Calculus Sheet</a>
+      </div>
+    </div>
+    <div class="hero-board" aria-label="Featured formulas">
+      <div>
+        <span>Quadratic</span>
+        <strong>{'\\(x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}\\)'}</strong>
+      </div>
+      <div>
+        <span>Bayes</span>
+        <strong>{'\\(P(A|B)=\\frac{P(B|A)P(A)}{P(B)}\\)'}</strong>
+      </div>
+      <div>
+        <span>Laplace</span>
+        <strong>{'\\(\\mathcal{L}\\{e^{at}\\}=\\frac{1}{s-a}\\)'}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="overview">
+    <div class="section-heading compact">
+      <p class="eyebrow">Sections</p>
+      <h2>{allFormulaRecords.length} formulas across {sections.length} reference pages</h2>
+    </div>
+    <div class="section-card-grid">
+      {sections.map((section) => (
+        <a class:list={['section-card', `accent-${section.accent}`]} href={section.href}>
+          <span>{section.title}</span>
+          <p>{section.summary}</p>
+          <small>{section.groups.length} groups</small>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

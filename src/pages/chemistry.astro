@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FormulaSection from '../components/FormulaSection.astro';
+import { sections } from '../data/formulas.js';
+
+const section = sections.find((item) => item.id === 'chemistry');
+---
+<BaseLayout title="Chemistry Equations and Formulas | Mathematical Handbook" currentPath="/chemistry/" useP5>
+  <FormulaSection section={section} />
+</BaseLayout>

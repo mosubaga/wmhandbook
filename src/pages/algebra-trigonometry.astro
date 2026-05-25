@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FormulaSection from '../components/FormulaSection.astro';
+import { sections } from '../data/formulas.js';
+
+const section = sections.find((item) => item.id === 'algebra-trigonometry');
+---
+<BaseLayout title="Algebra & Trigonometry | Mathematical Handbook" currentPath="/algebra-trigonometry/">
+  <FormulaSection section={section} />
+</BaseLayout>

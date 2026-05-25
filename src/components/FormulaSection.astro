@@ -1,0 +1,202 @@
+---
+const { section } = Astro.props;
+const accentClass = `accent-${section.accent}`;
+---
+<section class:list={['content-section', accentClass]}>
+  <div class="section-heading">
+    <p class="eyebrow">Formula Sheet</p>
+    <h1>{section.title}</h1>
+    <p>{section.summary}</p>
+  </div>
+
+  {section.diagrams && (
+    <div class="diagram-grid" aria-label={`${section.title} diagrams`}>
+      {section.diagrams.map((diagram) => (
+        <article class="diagram-card">
+          <div class="diagram-canvas" id={diagram.id} data-sketch={diagram.sketch}></div>
+          <div>
+            <h2>{diagram.title}</h2>
+            <p>{diagram.caption}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  )}
+
+  {section.groups.map((group) => (
+    <article class="formula-group" id={group.title.toLowerCase().replaceAll(' ', '-').replaceAll('&', 'and')}>
+      <h2>{group.title}</h2>
+      <div class="formula-grid">
+        {group.formulas.map((formula) => (
+          <article class="formula-card" data-formula-card data-search={`${formula.name} ${group.title} ${section.title} ${formula.note ?? ''} ${formula.latex}`}>
+            <div class="formula-meta">
+              <span class="chip">{group.title}</span>
+            </div>
+            <h3>{formula.name}</h3>
+            <div class="formula-latex">{`\\[${formula.latex}\\]`}</div>
+            {formula.note && <p>{formula.note}</p>}
+          </article>
+        ))}
+      </div>
+    </article>
+  ))}
+</section>
+
+{section.diagrams && (
+  <script>
+    function sketchHostSize(host) {
+      return {
+        width: Math.max(260, host.clientWidth),
+        height: Math.max(170, Math.min(260, host.clientWidth * 0.62))
+      };
+    }
+
+    function mountSketch(host) {
+      const sketchName = host.dataset.sketch;
+      new window.p5((p) => {
+        let size = { width: 320, height: 200 };
+
+        p.setup = () => {
+          size = sketchHostSize(host);
+          p.createCanvas(size.width, size.height).parent(host);
+          p.pixelDensity(1);
+        };
+
+        p.windowResized = () => {
+          size = sketchHostSize(host);
+          p.resizeCanvas(size.width, size.height);
+        };
+
+        p.draw = () => {
+          p.clear();
+          p.background(255, 255, 255, 150);
+          if (sketchName === 'projectile') drawProjectile(p, size);
+          if (sketchName === 'wave') drawWave(p, size);
+          if (sketchName === 'atom') drawAtom(p, size);
+          if (sketchName === 'ph') drawPhScale(p, size);
+        };
+      });
+    }
+
+    function drawProjectile(p, size) {
+      const { width: w, height: h } = size;
+      p.stroke('#7c6d8b');
+      p.strokeWeight(2);
+      p.line(24, h - 28, w - 18, h - 28);
+      p.line(28, h - 24, 28, 18);
+      p.noFill();
+      p.stroke('#d86e9c');
+      p.strokeWeight(3);
+      p.beginShape();
+      for (let t = 0; t <= 1; t += 0.025) {
+        const x = 34 + t * (w - 74);
+        const y = h - 34 - (Math.sin(t * Math.PI) * (h * 0.55) - t * h * 0.08);
+        p.vertex(x, y);
+      }
+      p.endShape();
+      const t = (p.frameCount % 160) / 160;
+      const x = 34 + t * (w - 74);
+      const y = h - 34 - (Math.sin(t * Math.PI) * (h * 0.55) - t * h * 0.08);
+      p.noStroke();
+      p.fill('#4f8fc9');
+      p.circle(x, y, 14);
+      p.fill('#4d415e');
+      p.textSize(13);
+      p.text('g', 42, 34);
+      p.stroke('#4d415e');
+      p.line(48, 38, 48, 72);
+      p.line(48, 72, 42, 62);
+      p.line(48, 72, 54, 62);
+    }
+
+    function drawWave(p, size) {
+      const { width: w, height: h } = size;
+      const mid = h / 2;
+      p.strokeWeight(3);
+      p.noFill();
+      p.stroke('#4f8fc9');
+      p.beginShape();
+      for (let x = 16; x < w - 16; x += 4) {
+        p.vertex(x, mid + Math.sin((x + p.frameCount * 2) * 0.045) * h * 0.22);
+      }
+      p.endShape();
+      p.stroke('#d86e9c');
+      p.beginShape();
+      for (let x = 16; x < w - 16; x += 4) {
+        p.vertex(x, mid + Math.cos((x + p.frameCount * 2) * 0.045) * h * 0.16);
+      }
+      p.endShape();
+      p.stroke('#7c6d8b');
+      p.strokeWeight(1.5);
+      p.line(18, mid, w - 18, mid);
+      p.noStroke();
+      p.fill('#4d415e');
+      p.textSize(13);
+      p.text('E', 22, mid - h * 0.25);
+      p.text('B', 22, mid + h * 0.29);
+    }
+
+    function drawAtom(p, size) {
+      const { width: w, height: h } = size;
+      const cx = w / 2;
+      const cy = h / 2;
+      p.noFill();
+      p.stroke('#7c6d8b');
+      p.strokeWeight(1.5);
+      for (const angle of [0, Math.PI / 3, -Math.PI / 3]) {
+        p.push();
+        p.translate(cx, cy);
+        p.rotate(angle);
+        p.ellipse(0, 0, w * 0.56, h * 0.28);
+        p.pop();
+      }
+      p.noStroke();
+      p.fill('#d86e9c');
+      p.circle(cx, cy, 34);
+      for (let i = 0; i < 3; i += 1) {
+        const angle = p.frameCount * 0.025 + i * (Math.PI * 2 / 3);
+        p.fill('#4f8fc9');
+        p.circle(cx + Math.cos(angle) * w * 0.26, cy + Math.sin(angle) * h * 0.13, 12);
+      }
+      p.fill('#ffffff');
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(13);
+      p.text('nucleus', cx, cy);
+      p.textAlign(p.LEFT, p.BASELINE);
+    }
+
+    function drawPhScale(p, size) {
+      const { width: w, height: h } = size;
+      const left = 24;
+      const top = h * 0.36;
+      const barW = w - 48;
+      const barH = 30;
+      for (let i = 0; i < 14; i += 1) {
+        const x = left + (i / 14) * barW;
+        const hue = p.map(i, 0, 13, 350, 130);
+        p.colorMode(p.HSB, 360, 100, 100, 1);
+        p.noStroke();
+        p.fill(hue, 58, 88, 0.9);
+        p.rect(x, top, barW / 14 + 1, barH, 5);
+      }
+      p.colorMode(p.RGB, 255, 255, 255, 1);
+      p.fill('#4d415e');
+      p.textSize(13);
+      p.text('acidic', left, top - 12);
+      p.text('neutral', left + barW * 0.46, top - 12);
+      p.text('basic', left + barW - 40, top - 12);
+      p.text('0', left, top + barH + 20);
+      p.text('7', left + barW / 2 - 4, top + barH + 20);
+      p.text('14', left + barW - 14, top + barH + 20);
+      const marker = left + ((p.sin(p.frameCount * 0.025) + 1) / 2) * barW;
+      p.stroke('#4d415e');
+      p.strokeWeight(2);
+      p.line(marker, top - 6, marker, top + barH + 7);
+    }
+
+    window.addEventListener('load', () => {
+      if (!window.p5) return;
+      document.querySelectorAll('[data-sketch]').forEach(mountSketch);
+    });
+  </script>
+)}

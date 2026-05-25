@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FormulaSection from '../components/FormulaSection.astro';
+import { sections } from '../data/formulas.js';
+
+const section = sections.find((item) => item.id === 'differential-equations');
+---
+<BaseLayout title="Differential Equations | Mathematical Handbook" currentPath="/differential-equations/">
+  <FormulaSection section={section} />
+</BaseLayout>
